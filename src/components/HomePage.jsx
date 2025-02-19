@@ -1,178 +1,117 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import HeroSlider from "./HeroSlider";
-import FloatingChatbot from "./Chatbot";
 import Chatbot from "./Chatbot";
+import { FaClock } from "react-icons/fa";
 
 function HomePage({ addToCart }) {
   const [menImages, setMenImages] = useState([]);
   const [womenImages, setWomenImages] = useState([]);
   const [electronicsImages, setElectronicsImages] = useState([]);
-  const navigate = useNavigate();
+  const [timer, setTimer] = useState(3600); // 1-hour countdown for deals
 
   useEffect(() => {
-    // Function to fetch images from Unsplash API based on category
     const fetchImages = async () => {
       try {
-        // Fetch Men's images
-        const menResponse = await axios.get(
-          "https://api.unsplash.com/search/photos",
-          {
-            params: {
-              client_id: "4G-E-oO1VVHULeGazgn_iqLFS8L2H4t2Ch-cnbxnltc", // Replace with your Unsplash API key
-              query: "men fashion", // Search for men's fashion images
-              per_page: 6,
-            },
-          }
-        );
-        setMenImages(menResponse.data.results);
+        const categories = [
+          { name: "men fashion", setter: setMenImages },
+          { name: "women fashion", setter: setWomenImages },
+          { name: "electronics", setter: setElectronicsImages },
+        ];
 
-        // Fetch Women's images
-        const womenResponse = await axios.get(
-          "https://api.unsplash.com/search/photos",
-          {
-            params: {
-              client_id: "4G-E-oO1VVHULeGazgn_iqLFS8L2H4t2Ch-cnbxnltc", // Replace with your Unsplash API key
-              query: "women fashion", // Search for women's fashion images
-              per_page: 6,
-            },
-          }
-        );
-        setWomenImages(womenResponse.data.results);
-
-        // Fetch Electronics images
-        const electronicsResponse = await axios.get(
-          "https://api.unsplash.com/search/photos",
-          {
-            params: {
-              client_id: "4G-E-oO1VVHULeGazgn_iqLFS8L2H4t2Ch-cnbxnltc", // Replace with your Unsplash API key
-              query: "electronics", // Search for electronics images
-              per_page: 6,
-            },
-          }
-        );
-        setElectronicsImages(electronicsResponse.data.results);
+        for (const category of categories) {
+          const response = await axios.get(
+            "https://api.unsplash.com/search/photos",
+            {
+              params: {
+                client_id: "4G-E-oO1VVHULeGazgn_iqLFS8L2H4t2Ch-cnbxnltc",
+                query: category.name,
+                per_page: 6,
+              },
+            }
+          );
+          category.setter(response.data.results);
+        }
       } catch (error) {
         console.error("Error fetching images:", error);
       }
     };
-
-    // Fetch images when the component is mounted
     fetchImages();
-  }, []); // Empty dependency array ensures it runs only once when the component mounts
 
-  const handleAddToCart = (item) => {
-    const itemWithImage = {
-      name: item.name, // Example product name
-      price: item.price, // Example price
-      image: item.urls.regular, // Image URL for the item
-    };
-
-    addToCart(itemWithImage); // Add item with image to the cart
-    navigate("/cart");
-  };
+    const interval = setInterval(() => {
+      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="bg-gray-900 text-white min-h-screen">
       <HeroSlider />
       <Chatbot />
 
-      {/* Men Section */}
-      <section className="my-10">
-        <h2 className="text-3xl text-white font-semibold mb-6">
-          Men's Collection
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {menImages.map((image) => (
-            <div key={image.id} className="bg-gray-800 p-4 rounded-lg">
-              <img
-                src={image.urls.regular} // Image from Unsplash API
-                alt="Men's Fashion"
-                className="w-full h-48 object-cover rounded-md"
-              />
-              <h3 className="text-white mt-4">Product Name</h3>
-              <p className="text-gray-400">$199</p>
-              <button
-                className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg w-full"
-                onClick={() =>
-                  handleAddToCart({
-                    name: "Men's Fashion", // Example product name
-                    price: 199, // Example price
-                    urls: { regular: image.urls.regular }, // Image URL for the item
-                  })
-                }
-              >
-                Add to Cart
-              </button>
-            </div>
-          ))}
+      {/* 📢 Banner Ads & Promotions */}
+      <div className="container mx-auto my-6 p-4">
+        <div className="bg-yellow-500 text-black p-4 text-center text-xl font-bold rounded-lg shadow-lg">
+          Get 50% Off on Electronics! Limited Time Offer!
         </div>
-      </section>
+      </div>
 
-      {/* Women Section */}
-      <section className="my-10">
-        <h2 className="text-3xl text-white font-semibold mb-6">
-          Women's Collection
+      <div className="container mx-auto p-6">
+        {/* 🔥 Trending Deals Section */}
+        <h2 className="text-2xl font-semibold my-6 text-center">
+          Trending Deals
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {womenImages.map((image) => (
-            <div key={image.id} className="bg-gray-800 p-4 rounded-lg">
-              <img
-                src={image.urls.regular}
-                alt="Women's Fashion"
-                className="w-full h-48 object-cover rounded-md"
-              />
-              <h3 className="text-white mt-4">Product Name</h3>
-              <p className="text-gray-400">$159</p>
-              <button
-                className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg w-full"
-                onClick={() =>
-                  handleAddToCart({
-                    name: "Women's Fashion", // Example product name
-                    price: 159, // Example price
-                    urls: { regular: image.urls.regular }, // Image URL for the item
-                  })
-                }
-              >
-                Add to Cart
-              </button>
-            </div>
-          ))}
+        <div className="bg-red-500 text-white p-4 text-center text-lg font-semibold rounded-lg">
+          <FaClock className="inline-block mr-2" /> Deal of the Day - Time Left:{" "}
+          {`${Math.floor(timer / 60)}:${timer % 60}`}
         </div>
-      </section>
 
-      {/* Electronics Section */}
-      <section className="my-10">
-        <h2 className="text-3xl text-white font-semibold mb-6">
-          Electronics Collection
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {electronicsImages.map((image) => (
-            <div key={image.id} className="bg-gray-800 p-4 rounded-lg">
-              <img
-                src={image.urls.regular}
-                alt="Electronics"
-                className="w-full h-48 object-cover rounded-md"
-              />
-              <h3 className="text-white mt-4">Product Name</h3>
-              <p className="text-gray-400">$299</p>
-              <button
-                className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg w-full"
-                onClick={() =>
-                  handleAddToCart({
-                    name: "Electronics", // Example product name
-                    price: 299, // Example price
-                    urls: { regular: image.urls.regular }, // Image URL for the item
-                  })
-                }
-              >
-                Add to Cart
-              </button>
+        {[
+          { title: "Men's Collection", data: menImages, price: 199 },
+          { title: "Women's Collection", data: womenImages, price: 159 },
+          {
+            title: "Electronics Collection",
+            data: electronicsImages,
+            price: 299,
+          },
+        ].map((section, index) => (
+          <section key={index} className="my-10">
+            <h2 className="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2 text-center">
+              {section.title}
+            </h2>
+            <div className="flex overflow-x-auto gap-6 scrollbar-hide">
+              {section.data.map((image) => (
+                <div
+                  key={image.id}
+                  className="bg-gray-800 p-4 rounded-lg min-w-[200px]"
+                >
+                  <img
+                    src={image.urls.regular}
+                    alt={section.title}
+                    className="w-full h-40 object-cover rounded-md"
+                  />
+                  <h3 className="mt-4 text-sm font-semibold text-center">
+                    {section.title}
+                  </h3>
+                  <p className="text-gray-400 text-center">${section.price}</p>
+                  <button
+                    className="mt-4 bg-yellow-500 text-black py-1 px-3 rounded-lg w-full font-semibold text-sm"
+                    onClick={() =>
+                      addToCart({
+                        name: section.title,
+                        price: section.price,
+                        urls: { regular: image.urls.regular },
+                      })
+                    }
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

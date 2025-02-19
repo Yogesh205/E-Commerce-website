@@ -14,7 +14,7 @@ const WelcomeScreen = ({ onFinish }) => {
       transition={{ duration: 1 }}
       className="flex items-center justify-center h-screen bg-black text-white text-4xl font-bold"
     >
-      Welcome to YogPriya Shop
+      Welcome to HypeMart
     </motion.div>
   );
 };

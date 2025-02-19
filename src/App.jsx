@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import HomePage from "./components/HomePage";
 import CartPage from "./components/CartPage";
 import WelcomeScreen from "./components/WelcomeScreen";
+import Footer from "./components/Footer";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -23,7 +24,7 @@ function App() {
           <>
             <Navbar cartCount={cart.length} />
             <h2 className="text-white text-center mt-10 text-3xl">
-              Welcome to YogPriya Shop
+              Welcome to HypeMart
             </h2>
             <Routes>
               <Route path="/" element={<HomePage addToCart={addToCart} />} />
@@ -32,6 +33,7 @@ function App() {
           </>
         )}
       </div>
+      <Footer />
     </Router>
   );
 }
