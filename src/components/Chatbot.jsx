@@ -1,23 +1,47 @@
 import React, { useState } from "react";
 import { FaPaperPlane, FaRobot, FaTimes } from "react-icons/fa";
+import axios from "axios";
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]); // Fixed: Corrected 'message' to 'messages'
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (input.trim() === "") return;
 
-    setMessages([...messages, { text: input, sender: "user" }]); // Fixed: Corrected 'sendMessage' to 'setMessages'
+    const userMessage = { text: input, sender: "user" };
+    setMessages([...messages, userMessage]);
     setInput("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/v1/chat", {
+        message: input,
+      });
+
+      const botMessage = {
+        text: response.data.reply,
+        sender: "bot",
+      };
+
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error) {
+      console.error("Error fetching chatbot response:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: "Error getting response. Try again later.", sender: "bot" },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return ( // Fixed: Added parenthesis
+  return (
     <div className="fixed bottom-6 right-6 flex flex-col items-end">
-      {/* Chat Bubble Button */}
       <button
         onClick={toggleChat}
         className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition"
@@ -25,7 +49,6 @@ function Chatbot() {
         {isOpen ? <FaTimes size={24} /> : <FaRobot size={24} />}
       </button>
 
-      {/* Chat Window */}
       {isOpen && (
         <div className="bg-gray-900 text-white w-80 h-96 rounded-lg shadow-lg p-4 mt-3 flex flex-col">
           <div className="flex-grow overflow-y-auto">
@@ -45,9 +68,12 @@ function Chatbot() {
                 </span>
               </div>
             ))}
+
+            {loading && (
+              <div className="text-left text-gray-400">Typing...</div>
+            )}
           </div>
 
-          {/* Input Field */}
           <div className="flex mt-2">
             <input
               type="text"
