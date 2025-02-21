@@ -1,38 +1,27 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: true,
-        },
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-        },
-        password: {
-            type: String,
-            required: true,
-        },
+const UserSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, "Name is required"],
+        trim: true
     },
-    { timestamps: true }
-);
-
-// ✅ Fix: Proper Password Hashing Before Saving
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next(); // Skip if password is not modified
-
-    try {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        console.log("✅ Hashed Password:", this.password); // Debugging log
-        next();
-    } catch (error) {
-        next(error);
+    email: {
+        type: String,
+        required: [true, "Email is required"],
+        unique: true,
+        lowercase: true,
+        trim: true,
+        match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"]
+    },
+    password: {
+        type: String,
+        required: [true, "Password is required"],
+        minlength: [6, "Password must be at least 6 characters long"]
     }
+}, {
+    timestamps: true  // ✅ Automatically adds `createdAt` & `updatedAt`
 });
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+const UserModel = mongoose.model('User', UserSchema);
+module.exports = UserModel;
