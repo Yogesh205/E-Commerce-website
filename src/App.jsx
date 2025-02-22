@@ -14,6 +14,8 @@ import WelcomeScreen from "./components/WelcomeScreen";
 import Footer from "./components/Footer";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import CategoryPage from "./components/Categorypage";
+import SearchResults from "./components/SearchResults"; // ✅ SearchResults import kiya
 
 function App() {
   return (
@@ -24,96 +26,115 @@ function App() {
 }
 
 function MainLayout() {
-  const [cart, setCart] = useState([]);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [user, setUser] = useState(null);
-  const location = useLocation(); // ✅ Check current route
+  const location = useLocation();
 
-  // ✅ Hide Navbar/Footer on these routes
+  const [user, setUser] = useState(() => {
+    return JSON.parse(localStorage.getItem("user")) || null;
+  });
+
+  const [cart, setCart] = useState(() => {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+  });
+
   const hideNavFooter = ["/login", "/register"].includes(location.pathname);
 
-  // ✅ Check for logged-in user on page load
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/auth/me", {
-          withCredentials: true, // ✅ Send cookies to backend
+          withCredentials: true,
         });
-
         if (response.data) {
-          setUser(response.data); // ✅ Set logged-in user
-          localStorage.setItem("user", JSON.stringify(response.data)); // ✅ Store in localStorage
+          setUser(response.data);
+          localStorage.setItem("user", JSON.stringify(response.data));
         }
       } catch (error) {
         console.log("User not logged in.");
         setUser(null);
-        localStorage.removeItem("user"); // ✅ Remove invalid user session
+        localStorage.removeItem("user");
       }
     };
-
-    fetchUser();
+    if (!user) fetchUser();
   }, []);
 
-  // ✅ Logout function
   const handleLogout = async () => {
-    await axios.post(
-      "http://localhost:5000/api/auth/logout",
-      {},
-      { withCredentials: true }
-    );
     setUser(null);
     localStorage.removeItem("user");
+    try {
+      await axios.post(
+        "http://localhost:5000/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
   const addToCart = (item) => {
-    setCart((prevCart) => [...prevCart, item]);
+    setCart((prevCart) => {
+      const exists = prevCart.some((cartItem) => cartItem.id === item.id);
+      return exists ? prevCart : [...prevCart, item];
+    });
   };
+
+  const removeFromCart = (itemId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
+  };
+
+  if (showWelcome) {
+    return <WelcomeScreen onFinish={() => setShowWelcome(false)} />;
+  }
 
   return (
     <div className="bg-gray-950 min-h-screen">
-      {showWelcome ? (
-        <WelcomeScreen onFinish={() => setShowWelcome(false)} />
-      ) : (
-        <>
-          {!hideNavFooter && (
-            <Navbar
-              user={user}
-              cartCount={cart.length}
-              handleLogout={handleLogout}
-            />
-          )}
-
-          <h2 className="text-white text-center mt-10 text-3xl">
-            Welcome to HypeMart
-          </h2>
-
-          <Routes>
-            {/* ✅ Protected Routes - Redirect to login if user is not logged in */}
-            <Route
-              path="/"
-              element={
-                user ? (
-                  <HomePage addToCart={addToCart} />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                user ? <CartPage cart={cart} /> : <Navigate to="/login" />
-              }
-            />
-
-            {/* ✅ Public Routes */}
-            <Route path="/login" element={<Login setUser={setUser} />} />
-            <Route path="/register" element={<Register />} />
-          </Routes>
-
-          {!hideNavFooter && <Footer />}
-        </>
+      {!hideNavFooter && (
+        <Navbar
+          user={user}
+          cartCount={cart.length}
+          handleLogout={handleLogout}
+        />
       )}
+
+      <h2 className="text-white text-center mt-10 text-3xl">
+        Welcome to HypeMart
+      </h2>
+
+      <Routes>
+        <Route
+          path="/"
+          element={
+            user ? <HomePage addToCart={addToCart} /> : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            user ? (
+              <CartPage cart={cart} removeFromCart={removeFromCart} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route path="/login" element={<Login setUser={setUser} />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/category/:category"
+          element={<CategoryPage addToCart={addToCart} />}
+        />
+        <Route
+          path="/search/:query"
+          element={<SearchResults />} // ✅ Search Page Added
+        />
+      </Routes>
+
+      {!hideNavFooter && <Footer />}
     </div>
   );
 }

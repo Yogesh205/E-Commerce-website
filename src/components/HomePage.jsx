@@ -9,6 +9,7 @@ function HomePage({ addToCart }) {
   const [womenImages, setWomenImages] = useState([]);
   const [electronicsImages, setElectronicsImages] = useState([]);
   const [timer, setTimer] = useState(3600); // 1-hour countdown for deals
+  const [selectedProduct, setSelectedProduct] = useState(null); // 🛒 Modal ke liye
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -83,7 +84,15 @@ function HomePage({ addToCart }) {
               {section.data.map((image) => (
                 <div
                   key={image.id}
-                  className="bg-gray-800 p-4 rounded-lg min-w-[200px]"
+                  className="bg-gray-800 p-4 rounded-lg min-w-[200px] cursor-pointer"
+                  onClick={() =>
+                    setSelectedProduct({
+                      id: image.id,
+                      title: section.title,
+                      price: section.price,
+                      urls: image.urls,
+                    })
+                  }
                 >
                   <img
                     src={image.urls.regular}
@@ -112,8 +121,67 @@ function HomePage({ addToCart }) {
           </section>
         ))}
       </div>
+
+      {/* 🖼 Product Modal */}
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          addToCart={addToCart}
+        />
+      )}
     </div>
   );
 }
 
 export default HomePage;
+
+// 🎯 Product Modal Component
+function ProductModal({ product, onClose, addToCart }) {
+  if (!product) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center p-4 z-50">
+      <div className="bg-gray-800 text-white p-6 rounded-lg w-96 relative shadow-lg">
+        {/* ❌ Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-xl bg-red-600 rounded-full px-2 py-1 text-white z-50"
+          style={{ zIndex: 9999 }} // ✅ High z-index
+        >
+          ✖
+        </button>
+
+        <img
+          src={product.urls.regular}
+          alt="Product"
+          className="w-full h-60 object-cover rounded-lg"
+        />
+
+        <h2 className="text-lg font-semibold mt-4">{product.title}</h2>
+        <p className="text-gray-400">${product.price}</p>
+        <p className="text-sm mt-2">
+          This is a high-quality product with amazing reviews!
+        </p>
+
+        <div className="mt-3">
+          <strong>⭐ 4.5/5 (120 Reviews)</strong>
+        </div>
+
+        <button
+          className="mt-4 bg-yellow-500 text-black py-2 px-3 rounded-lg w-full font-semibold text-sm"
+          onClick={() => {
+            addToCart({
+              name: product.title,
+              price: product.price,
+              urls: { regular: product.urls.regular },
+            });
+            onClose();
+          }}
+        >
+          Add to Cart 🛒
+        </button>
+      </div>
+    </div>
+  );
+}

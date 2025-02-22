@@ -5,41 +5,81 @@ import {
   FaSearch,
   FaUser,
 } from "react-icons/fa";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Navbar({ user, cartCount, handleLogout }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentUser, setCurrentUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
+
   const navigate = useNavigate();
+
+  // ✅ Fix: Only update local storage when user is non-null
+  useEffect(() => {
+    if (user) {
+      setCurrentUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+  }, [user]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim() !== "") {
+      navigate(`/search/${searchQuery}`);
+      setSearchQuery(""); // ✅ Reset input after search
+    }
+  };
+
+  const handleCategoryClick = (category) => {
+    navigate(`/category/${category}`);
+    setIsOpen(false); // ✅ Close menu on selection
+  };
 
   return (
     <nav className="bg-gray-900 text-white p-4 fixed top-0 left-0 w-full z-50 shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <h1 className="text-2xl font-bold cursor-pointer">HypeMart</h1>
+        <h1
+          className="text-2xl font-bold cursor-pointer"
+          onClick={() => {
+            navigate("/");
+            setIsOpen(false); // ✅ Close menu on home click
+          }}
+        >
+          HypeMart
+        </h1>
 
         {/* Search Bar */}
         <div className="hidden md:flex items-center bg-white rounded-lg overflow-hidden w-1/2">
           <input
             type="text"
             placeholder="Search for products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="p-2 text-black w-full outline-none"
           />
-          <button className="bg-yellow-500 p-2">
+          <button className="bg-yellow-500 p-2" onClick={handleSearch}>
             <FaSearch size={20} className="text-black" />
           </button>
         </div>
 
         {/* Icons */}
         <div className="flex items-center space-x-6">
-          {/* User Login/Logout */}
-          {user ? (
+          {/* User Greeting */}
+          {currentUser ? (
             <div className="flex items-center gap-4">
               <span className="text-yellow-400 cursor-pointer">
-                👤 {user.name}
+                👤 Hello, {currentUser.name}
               </span>
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  handleLogout();
+                  setCurrentUser(null);
+                  localStorage.removeItem("user");
+                }}
                 className="bg-red-500 px-3 py-1 rounded"
               >
                 Logout
@@ -81,27 +121,59 @@ function Navbar({ user, cartCount, handleLogout }) {
 
       {/* Navbar Items */}
       <div className="hidden md:flex justify-center space-x-6 bg-gray-800 p-2 mt-2">
-        <a href="/" className="hover:text-gray-400">
+        <button onClick={() => navigate("/")} className="hover:text-gray-400">
           Home
-        </a>
-        <button className="hover:text-gray-400">Men</button>
-        <button className="hover:text-gray-400">Women</button>
-        <a href="/electronics" className="hover:text-gray-400">
+        </button>
+        <button
+          className="hover:text-gray-400"
+          onClick={() => handleCategoryClick("men")}
+        >
+          Men
+        </button>
+        <button
+          className="hover:text-gray-400"
+          onClick={() => handleCategoryClick("women")}
+        >
+          Women
+        </button>
+        <button
+          className="hover:text-gray-400"
+          onClick={() => handleCategoryClick("electronics")}
+        >
           Electronics
-        </a>
+        </button>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-gray-800 p-4 mt-2">
-          <a href="/" className="block mb-2">
+          <button
+            onClick={() => {
+              navigate("/");
+              setIsOpen(false); // ✅ Close menu
+            }}
+            className="block mb-2 hover:text-gray-400"
+          >
             Home
-          </a>
-          <button className="block mb-2">Men</button>
-          <button className="block mb-2">Women</button>
-          <a href="/electronics" className="block mb-2">
+          </button>
+          <button
+            className="block mb-2 hover:text-gray-400"
+            onClick={() => handleCategoryClick("men")}
+          >
+            Men
+          </button>
+          <button
+            className="block mb-2 hover:text-gray-400"
+            onClick={() => handleCategoryClick("women")}
+          >
+            Women
+          </button>
+          <button
+            className="block mb-2 hover:text-gray-400"
+            onClick={() => handleCategoryClick("electronics")}
+          >
             Electronics
-          </a>
+          </button>
         </div>
       )}
     </nav>
