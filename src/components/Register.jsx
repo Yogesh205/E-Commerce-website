@@ -15,7 +15,7 @@ function Register() {
 
     try {
       await axios.post(
-        "https://e-commerce-backend-r4fm.onrender.com/api/auth/register",
+        "https://e-commerce-website-backend-s4e5.onrender.com/api/auth/register",
         {
           // Updated URL
           name,

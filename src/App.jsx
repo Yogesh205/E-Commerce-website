@@ -43,7 +43,7 @@ function MainLayout() {
     const fetchUser = async () => {
       try {
         const response = await axios.get(
-          "https://e-commerce-backend-r4fm.onrender.com/api/auth/me",
+          "https://e-commerce-website-backend-s4e5.onrender.com/api/auth/me",
           {
             withCredentials: true,
           }
@@ -66,7 +66,7 @@ function MainLayout() {
     localStorage.removeItem("user");
     try {
       await axios.post(
-        "https://e-commerce-backend-r4fm.onrender.com/api/auth/logout",
+        "https://e-commerce-website-backend-s4e5.onrender.com/api/auth/logout",
         {},
         { withCredentials: true }
       );

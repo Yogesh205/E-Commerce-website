@@ -4,26 +4,35 @@ import { useNavigate } from "react-router-dom";
 
 function ProductPage({ addToCart }) {
   const [products, setProducts] = useState([]);
+  const [images, setImages] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        // Fetch product details from your backend
         const response = await axios.get(
+          "https://e-commerce-website-backend-s4e5.onrender.com/api/products"
+        );
+        setProducts(response.data);
+
+        // Fetch images from Unsplash for the products
+        const imageResponse = await axios.get(
           "https://api.unsplash.com/search/photos",
           {
             params: {
               client_id: import.meta.env.VITE_UNSPLASH_KEY,
-              query: "fashion",
-              per_page: 12,
+              query: "fashion", // You can change this query based on your categories
+              per_page: response.data.length, // Fetch the same number of images as products
             },
           }
         );
-        setProducts(response.data.results);
+        setImages(imageResponse.data.results);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching data:", error);
       }
     };
+
     fetchProducts();
   }, []);
 
@@ -31,29 +40,29 @@ function ProductPage({ addToCart }) {
     <div className="bg-gray-900 text-white min-h-screen p-6">
       <h2 className="text-3xl font-bold text-center mb-6">All Products</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="bg-gray-800 p-4 rounded-lg">
-            {/* Image click event for navigation */}
+        {products.map((product, index) => (
+          <div key={product._id} className="bg-gray-800 p-4 rounded-lg">
+            {/* Use Unsplash image for the product */}
             <img
-              src={product.urls.regular}
-              alt={product.alt_description}
+              src={images[index]?.urls.regular} // Get image from Unsplash response
+              alt={product.name || "Product Image"}
               className="w-full h-40 object-cover rounded-md cursor-pointer"
               onClick={() =>
-                navigate(`/product/${product.id}`, { state: { product } })
+                navigate(`/product/${product._id}`, { state: { product } })
               }
             />
             <h3 className="mt-4 text-sm font-semibold text-center">
-              {product.alt_description || "Unknown Product"}
+              {product.name || "Unknown Product"}
             </h3>
-            <p className="text-gray-400 text-center">$199</p>
+            <p className="text-gray-400 text-center">${product.price}</p>
             <button
               className="mt-4 bg-yellow-500 text-black py-1 px-3 rounded-lg w-full font-semibold text-sm"
               onClick={() =>
                 addToCart({
-                  id: product.id, // ✅ Added unique ID
-                  name: product.alt_description || "Unknown Product",
-                  price: 199,
-                  image: product.urls.regular,
+                  id: product._id,
+                  name: product.name || "Unknown Product",
+                  price: product.price,
+                  image: images[index]?.urls.regular, // Use the image URL from Unsplash
                 })
               }
             >

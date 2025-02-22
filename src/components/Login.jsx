@@ -20,7 +20,7 @@ function Login({ setUser }) {
 
     try {
       const response = await axios.post(
-        "https://e-commerce-backend-r4fm.onrender.com/api/auth/login", // Updated backend URL
+        "https://e-commerce-website-backend-s4e5.onrender.com/api/auth/login", // Updated backend URL
         { email, password },
         {
           headers: { "Content-Type": "application/json" },
