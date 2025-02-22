@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+      "vercel-build": "npm install"
    
   },
   "keywords": [],
@@ -23,3 +24,5 @@
     "stripe": "^17.6.0"
   }
 }
+
+
