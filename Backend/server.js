@@ -67,17 +67,20 @@ app.post("/api/v1/chat", async (req, res) => {
     );
 
     // Ensure response structure is valid
-    const botReply = response.data?.choices?.[0]?.message?.content || "No response from AI";
+    const botReply =
+      response.data?.choices?.[0]?.message?.content || "No response from AI";
     res.json({ reply: botReply });
-
   } catch (error) {
-    console.error("❌ Error in Mistral API call:", error.response?.data || error.message);
+    console.error(
+      "❌ Error in Mistral API call:",
+      error.response?.data || error.message
+    );
     res.status(500).json({ error: "Something went wrong with Mistral AI API" });
   }
 });
 
 // ✅ Start Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
