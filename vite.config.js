@@ -5,7 +5,6 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 4000, // Set the port to 4000 (or any other port Render uses)
-    host: "0.0.0.0", // Make the server accessible externally (important for deployment)
+    allowedHosts: ["e-commerce-website-1-z8s1.onrender.com"], // Update to your new host
   },
 });

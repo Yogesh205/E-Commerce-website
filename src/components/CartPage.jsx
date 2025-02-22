@@ -19,14 +19,14 @@ function CartPage({ cart, removeFromCart }) {
             <div key={index} className="bg-gray-800 p-4 rounded-lg relative">
               {/* Product Image */}
               <img
-                src={item.image}
+                src={item.urls?.regular || "default-image.jpg"} // Safe access: fallback image
                 alt={item.name}
                 className="w-full h-48 object-cover rounded-md"
               />
 
               {/* Remove Button (❌) */}
               <button
-                onClick={() => removeFromCart(index)}
+                onClick={() => removeFromCart(item.id)} // Ensure we're passing the correct item id
                 className="absolute top-2 right-2 text-red-500 hover:text-red-700"
               >
                 <FaTimes size={20} />

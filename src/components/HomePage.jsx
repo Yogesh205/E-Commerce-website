@@ -107,6 +107,7 @@ function HomePage({ addToCart }) {
                     className="mt-4 bg-yellow-500 text-black py-1 px-3 rounded-lg w-full font-semibold text-sm"
                     onClick={() =>
                       addToCart({
+                        id: image.id,
                         name: section.title,
                         price: section.price,
                         urls: { regular: image.urls.regular },
@@ -172,6 +173,7 @@ function ProductModal({ product, onClose, addToCart }) {
           className="mt-4 bg-yellow-500 text-black py-2 px-3 rounded-lg w-full font-semibold text-sm"
           onClick={() => {
             addToCart({
+              id: product.id,
               name: product.title,
               price: product.price,
               urls: { regular: product.urls.regular },
