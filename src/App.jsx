@@ -42,9 +42,12 @@ function MainLayout() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/auth/me", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "https://e-commerce-backend-r4fm.onrender.com/api/auth/me",
+          {
+            withCredentials: true,
+          }
+        );
         if (response.data) {
           setUser(response.data);
           localStorage.setItem("user", JSON.stringify(response.data));
@@ -63,7 +66,7 @@ function MainLayout() {
     localStorage.removeItem("user");
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/logout",
+        "https://e-commerce-backend-r4fm.onrender.com/api/auth/logout",
         {},
         { withCredentials: true }
       );
