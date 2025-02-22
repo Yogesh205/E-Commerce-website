@@ -14,11 +14,15 @@ function Register() {
     setError("");
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
-        name,
-        email,
-        password,
-      });
+      await axios.post(
+        "https://e-commerce-backend-r4fm.onrender.com/api/auth/register",
+        {
+          // Updated URL
+          name,
+          email,
+          password,
+        }
+      );
 
       alert("Registration successful! Please login.");
       navigate("/login");
