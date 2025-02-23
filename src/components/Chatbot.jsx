@@ -19,9 +19,12 @@ function Chatbot() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/v1/chat", {
-        message: input,
-      });
+      const response = await axios.post(
+        "https://e-commerce-backend-r4fm.onrender.com/api/v1/chat",
+        {
+          message: input,
+        }
+      );
 
       const botMessage = {
         text: response.data.reply,

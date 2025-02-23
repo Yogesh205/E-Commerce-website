@@ -4,7 +4,7 @@ const CheckoutButton = ({ cartItems }) => {
   const handleCheckout = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/v1/payment/create-checkout-session",
+        "https://e-commerce-backend-r4fm.onrender.com/api/v1/payment/create-checkout-session",
         {
           method: "POST",
           headers: {
